@@ -3,4 +3,21 @@
     <string name="nav_home">الرئيسية</string>
     <string name="nav_profile">الملف الشخصي</string>
     <string name="nav_settings">الإعدادات</string>
+    <string name="shopping_lists">قوائم المشتريات</string>
+    <string name="add_list">إضافة قائمة</string>
+    <string name="list_name">اسم القائمة</string>
+    <string name="list_name_hint">مثال: مشتريات الأسبوع</string>
+    <string name="item_name">اسم الغرض</string>
+    <string name="item_name_hint">اسم المنتج</string>
+    <string name="quantity">الكمية</string>
+    <string name="quantity_hint">1</string>
+    <string name="price_optional">السعر (اختياري)</string>
+    <string name="price_hint">0.00</string>
+    <string name="image_optional">الصورة (اختياري)</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="add_item">إضافة غرض</string>
+    <string name="items_count">%d غرض</string>
+    <string name="no_lists">لا توجد قوائم. أضف قائمة جديدة.</string>
+    <string name="no_items">لا توجد أصناف. أضف أصنافاً.</string>
 </resources>
