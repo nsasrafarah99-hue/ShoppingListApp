@@ -20,4 +20,5 @@
     <string name="items_count">%d غرض</string>
     <string name="no_lists">لا توجد قوائم. أضف قائمة جديدة.</string>
     <string name="no_items">لا توجد أصناف. أضف أصنافاً.</string>
+    <string name="load_error">فشل تحميل القوائم:</string>
 </resources>

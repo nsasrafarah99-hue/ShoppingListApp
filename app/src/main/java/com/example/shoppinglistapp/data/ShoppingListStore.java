@@ -47,4 +47,12 @@ public class ShoppingListStore {
     public int getListCount() {
         return lists.size();
     }
+
+    /** استبدال كل القوائم (بعد التحميل من Appwrite) */
+    public void replaceAll(List<ShoppingList> newLists) {
+        lists.clear();
+        if (newLists != null) {
+            lists.addAll(newLists);
+        }
+    }
 }

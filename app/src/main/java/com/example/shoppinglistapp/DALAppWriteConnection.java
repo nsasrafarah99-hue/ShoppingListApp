@@ -804,9 +804,9 @@ public class DALAppWriteConnection {
      */
     public <T> OperationResult<ArrayList<T>> getData(String tableName, String collectionId, Class<T> classType) {
         try {
-            // التحقق من وجود الجدول
+            // إذا الجدول غير موجود نرجع قائمة فارغة (لتفادي خطأ عند أول تشغيل)
             if (!tableExists(tableName, collectionId)) {
-                return new OperationResult<>(false, "الجدول غير موجود: " + tableName);
+                return new OperationResult<>(true, "الجدول غير موجود - قائمة فارغة", new ArrayList<>());
             }
             
             URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + 
@@ -1225,10 +1225,11 @@ public class DALAppWriteConnection {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 
-                // تجاهل الحقول غير المطلوبة
+                // تجاهل الحقول غير المطلوبة (لا ترسل $id داخل data - Appwrite يرفضه)
                 if (key.equals("metadata") || key.equals("documentId") || 
                     key.equals("createdAt") || key.equals("createdBy") ||
-                    key.equals("class") || key.equals("$") || key.equals("id")) {
+                    key.equals("class") || key.equals("$") || key.equals("id") ||
+                    key.equals("$id")) {
                     continue; // لا نضيف هذه الحقول (id تم تحويله مسبقاً)
                 }
                 
@@ -1237,7 +1238,12 @@ public class DALAppWriteConnection {
             }
             
             requestBody.put("data", cleanData);
-            
+            // صلاحيات القراءة والكتابة للسماح بالعرض والحفظ
+            List<String> permissions = new ArrayList<>();
+            permissions.add("read(\"any\")");
+            permissions.add("write(\"any\")");
+            requestBody.put("permissions", permissions);
+
             String jsonBody = gson.toJson(requestBody);
             
             try (OutputStream os = connection.getOutputStream()) {
@@ -1290,18 +1296,23 @@ public class DALAppWriteConnection {
             connection.setReadTimeout(10000);
             connection.setDoOutput(true);
             
-            // تنظيف إضافي: إزالة أي حقول غير مطلوبة
+            // تنظيف إضافي: إزالة أي حقول غير مطلوبة (بما فيها $id)
             Map<String, Object> cleanData = new HashMap<>(documentData);
             cleanData.remove("metadata");
             cleanData.remove("documentId");
             cleanData.remove("createdAt");
             cleanData.remove("createdBy");
+            cleanData.remove("$id");
             
-            // طلب JSON مبسط جداً - يجب تضمين documentId
+            // طلب JSON مبسط جداً - يجب تضمين documentId وصلاحيات
             Map<String, Object> simpleRequest = new HashMap<>();
-            simpleRequest.put("documentId", documentId); // إضافة documentId
+            simpleRequest.put("documentId", documentId);
             simpleRequest.put("data", cleanData);
-            
+            List<String> perms = new ArrayList<>();
+            perms.add("read(\"any\")");
+            perms.add("write(\"any\")");
+            simpleRequest.put("permissions", perms);
+
             String jsonBody = gson.toJson(simpleRequest);
             
             try (OutputStream os = connection.getOutputStream()) {
@@ -2157,9 +2168,10 @@ public class DALAppWriteConnection {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 
-                // تجاهل الحقول الخاصة
+                // تجاهل الحقول الخاصة (لا تنشئ attribute باسم $id)
                 if (key.equals("class") || key.equals("$") || key.equals("metadata") ||
-                    key.equals("documentId") || key.equals("createdAt") || key.equals("createdBy")) {
+                    key.equals("documentId") || key.equals("createdAt") || key.equals("createdBy") ||
+                    key.equals("$id")) {
                     continue;
                 }
                 

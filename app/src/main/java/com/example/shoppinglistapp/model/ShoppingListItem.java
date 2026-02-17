@@ -1,14 +1,22 @@
 package com.example.shoppinglistapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * عنصر في قائمة المشتريات: اسم، كمية، سعر اختياري، صورة اختيارية.
+ * متوافق مع Appwrite: الحقل id يقرأ من $id، و listId يربط بالقائمة.
  */
 public class ShoppingListItem {
 
+    @SerializedName("$id")
+    private String id;
+    private String listId;
     private String name;
     private int quantity;
     private Double price;
     private String imagePath;
+    /** يستخدم من قبل DAL كـ documentId عند الحفظ في Appwrite */
+    private String documentId;
 
     public ShoppingListItem() {
         this.name = "";
@@ -22,6 +30,30 @@ public class ShoppingListItem {
         this.quantity = quantity;
         this.price = null;
         this.imagePath = null;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getListId() {
+        return listId;
+    }
+
+    public void setListId(String listId) {
+        this.listId = listId;
+    }
+
+    public String getDocumentId() {
+        return documentId != null ? documentId : id;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getName() {

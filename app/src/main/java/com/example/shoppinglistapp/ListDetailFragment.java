@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shoppinglistapp.adapter.ShoppingListItemAdapter;
+import com.example.shoppinglistapp.data.ShoppingListRepository;
 import com.example.shoppinglistapp.data.ShoppingListStore;
 import com.example.shoppinglistapp.model.ShoppingListItem;
 import com.example.shoppinglistapp.model.ShoppingList;
@@ -35,6 +36,7 @@ public class ListDetailFragment extends Fragment {
     private TextView emptyItems;
     private ShoppingListItemAdapter adapter;
     private String pickedImagePath;
+    private ShoppingListRepository repository;
 
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -85,6 +87,7 @@ public class ListDetailFragment extends Fragment {
         recyclerItems.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new ShoppingListItemAdapter();
         recyclerItems.setAdapter(adapter);
+        repository = new ShoppingListRepository(requireContext());
 
         fabAddItem.setOnClickListener(v -> showAddItemDialog());
         refreshItems();
@@ -136,9 +139,19 @@ public class ListDetailFragment extends Fragment {
                     item.setPrice(price);
                     item.setImagePath(pickedImagePath);
 
-                    if (list != null) {
-                        list.addItem(item);
-                        refreshItems();
+                    if (list != null && repository != null) {
+                        repository.addItem(item, list.getId(), new ShoppingListRepository.Callback<ShoppingListItem>() {
+                            @Override
+                            public void onResult(ShoppingListItem savedItem) {
+                                list.addItem(savedItem);
+                                refreshItems();
+                            }
+
+                            @Override
+                            public void onError(String message) {
+                                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)

@@ -1,16 +1,22 @@
 package com.example.shoppinglistapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * قائمة مشتريات لها اسم وقائمة من الأغراض.
+ * متوافق مع Appwrite: الحقل id يقرأ من $id في الاستجابة.
  */
 public class ShoppingList {
 
+    @SerializedName("$id")
     private String id;
     private String name;
     private List<ShoppingListItem> items;
+    /** يستخدم من قبل DAL كـ documentId عند الحفظ في Appwrite */
+    private String documentId;
 
     public ShoppingList() {
         this.id = String.valueOf(System.currentTimeMillis());
@@ -30,6 +36,14 @@ public class ShoppingList {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getDocumentId() {
+        return documentId != null ? documentId : id;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getName() {

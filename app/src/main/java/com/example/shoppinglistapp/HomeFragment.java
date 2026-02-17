@@ -14,8 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shoppinglistapp.adapter.ShoppingListAdapter;
+import com.example.shoppinglistapp.data.ShoppingListRepository;
 import com.example.shoppinglistapp.data.ShoppingListStore;
 import com.example.shoppinglistapp.model.ShoppingList;
+
+import java.util.ArrayList;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,6 +29,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerLists;
     private TextView emptyLists;
     private ShoppingListAdapter adapter;
+    private ShoppingListRepository repository;
 
     @Nullable
     @Override
@@ -46,13 +51,33 @@ public class HomeFragment extends Fragment {
         recyclerLists.setAdapter(adapter);
 
         fabAddList.setOnClickListener(v -> showAddListDialog());
-        refreshLists();
+        repository = new ShoppingListRepository(requireContext());
+        loadListsFromAppwrite();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         refreshLists();
+    }
+
+    private void loadListsFromAppwrite() {
+        repository.loadLists(new ShoppingListRepository.Callback<ArrayList<ShoppingList>>() {
+            @Override
+            public void onResult(ArrayList<ShoppingList> data) {
+                ShoppingListStore.getInstance().replaceAll(data);
+                refreshLists();
+            }
+
+            @Override
+            public void onError(String message) {
+                android.util.Log.e("HomeFragment", message);
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.load_error) + " " + message, Toast.LENGTH_LONG).show();
+                }
+                refreshLists();
+            }
+        });
     }
 
     private void refreshLists() {
@@ -75,9 +100,19 @@ public class HomeFragment extends Fragment {
                         return;
                     }
                     ShoppingList list = new ShoppingList(name);
-                    ShoppingListStore.getInstance().addList(list);
-                    refreshLists();
-                    openListDetail(list);
+                    repository.addList(list, new ShoppingListRepository.Callback<ShoppingList>() {
+                        @Override
+                        public void onResult(ShoppingList savedList) {
+                            ShoppingListStore.getInstance().addList(savedList);
+                            refreshLists();
+                            openListDetail(savedList);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
