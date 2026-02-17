@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- شريط سفلي برتقالي فاتح -->
+    <color name="bottom_bar_light_orange">#FFFFE0B2</color>
+    <color name="bottom_bar_icon_selected">#FF6D00</color>
+    <color name="bottom_bar_icon_unselected">#BF360C</color>
 </resources>
